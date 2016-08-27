@@ -2,8 +2,9 @@ Redcarpet is written with sugar, spice and everything nice
 ============================================================
 
 [![Build Status](https://travis-ci.org/vmg/redcarpet.svg?branch=master)](https://travis-ci.org/vmg/redcarpet)
+[![Dependency Status](https://www.versioneye.com/ruby/redcarpet/badge.svg)](https://www.versioneye.com/ruby/redcarpet)
 
-Redcarpet is Ruby library for Markdown processing that smells like
+Redcarpet is a Ruby library for Markdown processing that smells like
 butterflies and popcorn.
 
 This library is written by people
@@ -78,12 +79,12 @@ be added at the end of the opening fence for the code block.
 
 * `:autolink`: parse links even when they are not enclosed in `<>`
 characters. Autolinks for the http, https and ftp protocols will be
-automatically detected. Email addresses are also handled, and http
-links without protocol, but starting with `www`.
+automatically detected. Email addresses and http links without protocol,
+but starting with `www` are also handled.
 
 * `:disable_indented_code_blocks`: do not parse usual markdown
 code blocks. Markdown converts text with four spaces at
-the front of each line to code blocks. This options
+the front of each line to code blocks. This option
 prevents it from doing so. Recommended to use
 with `fenced_code_blocks: true`.
 
@@ -159,7 +160,7 @@ safe.
 * `:with_toc_data`: add HTML anchors to each header in the output HTML,
 to allow linking to each section.
 
-* `:hard_wrap`: insert HTML `<br>` tags inside on paragraphs where the origin
+* `:hard_wrap`: insert HTML `<br>` tags inside paragraphs where the original
 Markdown document had newlines (by default, Markdown ignores these newlines).
 
 * `:xhtml`: output XHTML-conformant tags. This option is always enabled in the
@@ -220,8 +221,9 @@ The following instance methods may be implemented by the renderer:
 ### Block-level calls
 
 If the return value of the method is `nil`, the block will be skipped.
-If the method for a document element is not implemented, the block will
-be skipped.
+Therefore, make sure that your renderer has at least a `paragraph` method
+implemented. If the method for a document element is not implemented, the
+block will be skipped.
 
 Example:
 
@@ -270,9 +272,9 @@ be copied verbatim:
 * footnote_ref(number)
 
 **Note**: When overriding a renderer's method, be sure to return a HTML
-element with a level that match the level of that method (e.g. return a block
-element when overriding a block-level callback). Otherwise, the output may
-be unexpected.
+element with a level that matches the level of that method (e.g. return a
+block element when overriding a block-level callback). Otherwise, the output
+may be unexpected.
 
 ### Low level rendering
 
@@ -371,16 +373,22 @@ monkeypatches the Markdown class, you're a terrible human being. Just saying.
 Boring legal stuff
 ------------------
 
-Copyright (c) 2011-2013, Vicent Martí
+Copyright (c) 2011-2016, Vicent Martí
 
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

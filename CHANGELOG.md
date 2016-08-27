@@ -1,6 +1,177 @@
 # Changelog
 
+* Conform a rule of id attribute defined in HTML 4.01 specification
+
+  *namusyaka*
+
+* Prevent empty anchor if inserted chars do not exist
+
+  *namusyaka*
+
+* Multiple single quote pairs are parsed correctly with SmartyPants.
+
+  Fix issue [#549](https://github.com/vmg/redcarpet/issues/549).
+
+  *Jan Jędrychowski*
+
+* Table headers don't require a minimum of three dashes anymore; a
+  single one can be used for each row.
+
+* Remove escaped entities from `HTML` render table of contents'
+  ids to be consistent with the `HTML_TOC` render.
+
+  Fix issue [#529](https://github.com/vmg/redcarpet/issues/529).
+
+* Remove periods at the end of URLs when autolinking to make sure
+  that links at the end of a sentence get properly generated.
+
+  Fix issue [#465](https://github.com/vmg/redcarpet/issues/465).
+
+* Expose the Markdown and rendering options through a `Hash` inside
+  the `@options` instance variable for custom render objects.
+
+* Avoid escaping ampersands in href links.
+
+  *Nolan Evans*
+
+## Version 3.3.4
+
+* Fix `bufprintf` to correctly work on Windows MinGW-w64 so strings
+  are properly written to the buffer.
+
+  *Kenichi Saita*
+
+* Fix the header anchor normalization by skipping non-ASCII chars
+  and not calling tolower because this leads to invalid UTF-8 byte
+  sequences in the HTML output. (tolower is not locale-aware)
+
+  *Clemens Gruber*
+
+## Version 3.3.3
+
+* Fix a memory leak instantiating a `Redcarpet::Render::Base` object.
+
+  *Oleg Dashevskii*
+
+* Fix the `StripDown` renderer to handle the `:highlight` option.
+
+  *Itay Grudev*
+
+* The `StripDown` renderer handles tables if the `tables` extension is
+  enabled.
+
+  *amnesia7*
+
+* Fix Smarty Pants to avoid fraction conversions when there are several
+  numbers separated with slashes (e.g. for a date).
+
+  *Sam Saffron*
+
+## Version 3.3.2
+
+* Fix a potential security issue in the HTML renderer
+  (Thanks to Giancarlo Canales Barreto for the heads up)
+
+## Version 3.3.1
+
+* Include the `Redcarpet::CLI`'s file in the gemspec to make it
+  available when downloading.
+
+## Version 3.3.0
+
+* Fix the stripping of surrounding characters that should be removed
+  during anchor generation.
+
+* Provide a `Redcarpet::CLI` class to create custom binary files.
+
+  Relying on Ruby's OptionParser, it's now straightforward to add new
+  options, rely on custom render objects or handle differently the
+  rendering of the provided files.
+
+* Undeprecate the compatibility layer for the old RedCloth API.
+
+  This layer actually ease the support of libraries supporting different
+  Markdown processors.
+
+* Strip out `style` tags at the HTML-block rendering level when the
+  `:no_styles` options is enabled ; previously they were only removed
+  inside paragraphs.
+
+* Avoid parsing images when the given URL isn't safe and the
+  `:safe_links_only` option is enabled.
+
+  *Alex Serban*
+
+* Avoid parsing references inside fenced code blocks so they are
+  now kept in the code snippet.
+
+  *David Waller*
+
+* Avoid escaping table-of-contents' headers by default. A new
+  `:escape_html` option is now available for the `HTML_TOC` object
+  if there are security concerns.
+
+* Add the `lang-` prefix in front of the language's name when using
+  `:prettify` along with `:fenced_code_blocks`.
+
+* Non-alphanumeric chars are now stripped out from generated anchors
+  (along the lines of Active Support's `#parameterize` method).
+
+## Version 3.2.3
+
+* Avoid rewinding content of a previous inline when autolinking is
+  enabled.
+
+  *Daniel LeCheminant*
+
+* Fix escaping of forward slashes with the `Safe` render object (add a
+  missing semi-colon).
+
+## Version 3.2.2
+
+* Consider `script` as a block-level element so it doesn't get included
+  inside a paragraph.
+
+## Version 3.2.1
+
+* Load `RedcarpetCompat` when requiring Redcarpet for the sake of
+  backward compatibility.
+
+  *Loren Segal*
+
+## Version 3.2.0
+
+* Add a `Safe` renderer to deal with users' input. The `escape_html`
+  and `safe_links_only` options are turned on by default.
+
+  Moreover, the `block_code` callback removes the tag's class since
+  the user can basically set anything with the vanilla one.
+
+  *Robin Dupret*
+
+* HTML5 block-level tags are now recognized
+
+  *silverhammermba*
+
+* The `StripDown` render object now displays the URL of links
+  along with the text.
+
+  *Robin Dupret*
+
+* The RedCloth API compatibility layer is now deprecated.
+
+  *Robin Dupret*
+
+* A hyphen and an equal should not be converted to heading.
+
+  *namusyaka*
+
 * Fix emphasis character escape sequence detection while mid-emphasis.
+
+  *jcheatham*
+
+* Add `=` to the whitelist of escaped chars so it can be used inside
+  highlighted snippets.
 
   *jcheatham*
 

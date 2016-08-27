@@ -13,7 +13,7 @@ module Redcarpet
         :autolink, :codespan, :double_emphasis,
         :emphasis, :underline, :raw_html,
         :triple_emphasis, :strikethrough,
-        :superscript,
+        :superscript, :highlight,
 
         # footnotes
         :footnotes, :footnote_def, :footnote_ref,
@@ -26,9 +26,9 @@ module Redcarpet
         end
       end
 
-      # Other methods where the text content is in another argument
+      # Other methods where we don't return only a specific argument
       def link(link, title, content)
-        content
+        "#{content} (#{link})"
       end
 
       def image(link, title, content)
@@ -42,6 +42,18 @@ module Redcarpet
 
       def header(text, header_level)
         text + "\n"
+      end
+
+      def table(header, body)
+        "#{header}#{body}"
+      end
+
+      def table_row(content)
+        content + "\n"
+      end
+
+      def table_cell(content, alignment)
+        content + "\t"
       end
     end
   end

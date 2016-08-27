@@ -1,27 +1,33 @@
 /*
  * Copyright (c) 2009, Natacha Porté
- * Copyright (c) 2011, Vicent Marti
+ * Copyright (c) 2015, Vicent Marti
  *
- * Permission to use, copy, modify, and distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
 #include "markdown.h"
 #include "html.h"
-#include "ruby.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <openssl/md5.h>
 
 #include "houdini.h"
 
@@ -125,7 +131,7 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 	if (lang && lang->size) {
 		size_t i, cls;
 		if (options->flags & HTML_PRETTIFY) {
-			BUFPUTSL(ob, "<pre><code class=\"prettyprint ");
+			BUFPUTSL(ob, "<pre><code class=\"prettyprint lang-");
 			cls++;
 		} else {
 			BUFPUTSL(ob, "<pre><code class=\"");
@@ -265,17 +271,51 @@ rndr_linebreak(struct buf *ob, void *opaque)
 	return 1;
 }
 
-char *header_anchor(struct buf *text)
+static void
+rndr_header_anchor(struct buf *out, const struct buf *anchor)
 {
-	VALUE str = rb_str_new2(bufcstr(text));
-	VALUE space_regex = rb_reg_new(" +", 2 /* length */, 0);
-	VALUE tags_regex = rb_reg_new("<\\/?[^>]*>", 10, 0);
+	static const char *AVAILABLE_CHARS = "0123456789-_";
+	MD5_CTX ctx;
+	unsigned char md[MD5_LBLOCK];
+	int j = 0;
 
-	VALUE heading = rb_funcall(str, rb_intern("gsub"), 2, space_regex, rb_str_new2("-"));
-	heading = rb_funcall(heading, rb_intern("gsub"), 2, tags_regex, rb_str_new2(""));
-	heading = rb_funcall(heading, rb_intern("downcase"), 0);
+	const uint8_t *a = anchor->data;
+	const size_t size = anchor->size;
+	size_t i = 0;
+	int stripped = 0, inserted = 0;
 
-	return StringValueCStr(heading);
+	for (; i < size; ++i) {
+		if (a[i] == '<') {
+			while (i < size && a[i] != '>')
+				i++;
+		} else if (a[i] == '&') {
+			while (i < size && a[i] != ';')
+				i++;
+		}
+		else if ((('a' <= a[i] && 'z' >= a[i]) || ('A' <= a[i] && 'Z' >= a[i]))
+			|| (inserted && strchr(AVAILABLE_CHARS, a[i]))) {
+			bufputc(out, tolower(a[i]));
+			stripped = 0;
+			inserted++;
+		}
+		else if (inserted && !stripped) {
+			bufputc(out, '-');
+			stripped = 1;
+		}
+	}
+
+	if (!inserted) {
+		MD5_Init(&ctx);
+		MD5_Update(&ctx, a, size);
+		MD5_Final(md, &ctx);
+		bufputs(out, "TOC_");
+		for(; j < MD5_DIGEST_LENGTH; ++j)
+			bufprintf(out, "%.2x", md[j]);
+		return;
+	}
+
+	if (stripped)
+		out->size--;
 }
 
 static void
@@ -286,8 +326,11 @@ rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 	if (ob->size)
 		bufputc(ob, '\n');
 
-	if ((options->flags & HTML_TOC) && (level <= options->toc_data.nesting_level))
-		bufprintf(ob, "<h%d id=\"%s\">", level, header_anchor(text));
+	if ((options->flags & HTML_TOC) && (level <= options->toc_data.nesting_level)) {
+		bufprintf(ob, "<h%d id=\"", level);
+		rndr_header_anchor(ob, text);
+		BUFPUTSL(ob, "\">");
+	}
 	else
 		bufprintf(ob, "<h%d>", level);
 
@@ -395,15 +438,30 @@ rndr_paragraph(struct buf *ob, const struct buf *text, void *opaque)
 static void
 rndr_raw_block(struct buf *ob, const struct buf *text, void *opaque)
 {
-	size_t org, sz;
-	if (!text) return;
-	sz = text->size;
-	while (sz > 0 && text->data[sz - 1] == '\n') sz--;
-	org = 0;
-	while (org < sz && text->data[org] == '\n') org++;
-	if (org >= sz) return;
-	if (ob->size) bufputc(ob, '\n');
-	bufput(ob, text->data + org, sz - org);
+	size_t org, size;
+	struct html_renderopt *options = opaque;
+
+	if (!text)
+		return;
+
+	size = text->size;
+	while (size > 0 && text->data[size - 1] == '\n')
+		size--;
+
+	for (org = 0; org < size && text->data[org] == '\n'; ++org)
+
+	if (org >= size)
+		return;
+
+	/* Remove style tags if the `:no_styles` option is enabled */
+	if ((options->flags & HTML_SKIP_STYLE) != 0 &&
+		sdhtml_is_tag(text->data, size, "style"))
+		return;
+
+	if (ob->size)
+		bufputc(ob, '\n');
+
+	bufput(ob, text->data + org, size - org);
 	bufputc(ob, '\n');
 }
 
@@ -429,10 +487,15 @@ static int
 rndr_image(struct buf *ob, const struct buf *link, const struct buf *title, const struct buf *alt, void *opaque)
 {
 	struct html_renderopt *options = opaque;
-	if (!link || !link->size) return 0;
+
+	if (link != NULL && (options->flags & HTML_SAFELINK) != 0 && !sd_autolink_issafe(link->data, link->size))
+		return 0;
 
 	BUFPUTSL(ob, "<img src=\"");
-	escape_href(ob, link->data, link->size);
+
+	if (link && link->size)
+		escape_href(ob, link->data, link->size);
+
 	BUFPUTSL(ob, "\" alt=\"");
 
 	if (alt && alt->size)
@@ -440,7 +503,8 @@ rndr_image(struct buf *ob, const struct buf *link, const struct buf *title, cons
 
 	if (title && title->size) {
 		BUFPUTSL(ob, "\" title=\"");
-		escape_html(ob, title->data, title->size); }
+		escape_html(ob, title->data, title->size);
+	}
 
 	bufputs(ob, USE_XHTML(options) ? "\"/>" : "\">");
 	return 1;
@@ -452,7 +516,7 @@ rndr_raw_html(struct buf *ob, const struct buf *text, void *opaque)
 	struct html_renderopt *options = opaque;
 
 	/* HTML_ESCAPE overrides SKIP_HTML, SKIP_STYLE, SKIP_LINKS and SKIP_IMAGES
-	* It doens't see if there are any valid tags, just escape all of them. */
+	   It doesn't see if there are any valid tags, just escape all of them. */
 	if((options->flags & HTML_ESCAPE) != 0) {
 		escape_html(ob, text->data, text->size);
 		return 1;
@@ -635,8 +699,17 @@ toc_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 			BUFPUTSL(ob,"</li>\n<li>\n");
 		}
 
-		bufprintf(ob, "<a href=\"#%s\">", header_anchor(text));
-		if (text) escape_html(ob, text->data, text->size);
+		bufprintf(ob, "<a href=\"#");
+		rndr_header_anchor(ob, text);
+		BUFPUTSL(ob, "\">");
+
+		if (text) {
+			if (options->flags & HTML_ESCAPE)
+				escape_html(ob, text->data, text->size);
+			else
+				bufput(ob, text->data, text->size);
+		}
+
 		BUFPUTSL(ob, "</a>\n");
 	}
 }
@@ -661,7 +734,7 @@ toc_finalize(struct buf *ob, void *opaque)
 }
 
 void
-sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options, int nesting_level)
+sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options, unsigned int render_flags)
 {
 	static const struct sd_callbacks cb_default = {
 		NULL,
@@ -702,8 +775,7 @@ sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *optio
 	};
 
 	memset(options, 0x0, sizeof(struct html_renderopt));
-	options->flags = HTML_TOC;
-	options->toc_data.nesting_level = nesting_level;
+	options->flags = render_flags;
 
 	memcpy(callbacks, &cb_default, sizeof(struct sd_callbacks));
 }

@@ -1,5 +1,6 @@
-/* C code produced by gperf version 3.0.3 */
+/* C code produced by gperf version 3.0.4 */
 /* Command-line: gperf -N find_block_tag -H hash_block_tag -C -c -E --ignore-case html_block_names.txt  */
+/* See http://git.io/RN0ncw for the list of recognized elements */
 /* Computed positions: -k'1-2' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -29,7 +30,7 @@
 error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
 #endif
 
-/* maximum key range = 37, duplicates = 0 */
+/* maximum key range = 67, duplicates = 0 */
 
 #ifndef GPERF_DOWNCASE
 #define GPERF_DOWNCASE 1
@@ -93,32 +94,32 @@ hash_block_tag (str, len)
 {
   static const unsigned char asso_values[] =
     {
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-       8, 30, 25, 20, 15, 10, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38,  0, 38,  0, 38,
-       5,  5,  5, 15,  0, 38, 38,  0, 15, 10,
-       0, 38, 38, 15,  0,  5, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38,  0, 38,
-       0, 38,  5,  5,  5, 15,  0, 38, 38,  0,
-      15, 10,  0, 38, 38, 15,  0,  5, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38, 38, 38, 38,
-      38, 38, 38, 38, 38, 38, 38
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      55, 50, 45, 40, 35, 30, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 15, 10, 15, 15, 15,
+       0, 20, 10, 10,  5, 68, 68,  0, 20, 25,
+       0, 68, 68,  0, 25,  0, 15, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 15, 10, 15,
+      15, 15,  0, 20, 10, 10,  5, 68, 68,  0,
+      20, 25,  0, 68, 68,  0, 25,  0, 15, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68
     };
   register int hval = len;
 
@@ -136,7 +137,7 @@ hash_block_tag (str, len)
 
 #ifdef __GNUC__
 __inline
-#ifdef __GNUC_STDC_INLINE__
+#if defined __GNUC_STDC_INLINE__ || defined __GNUC_GNU_INLINE__
 __attribute__ ((__gnu_inline__))
 #endif
 #endif
@@ -147,47 +148,69 @@ find_block_tag (str, len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 24,
+      TOTAL_KEYWORDS = 41,
       MIN_WORD_LENGTH = 1,
       MAX_WORD_LENGTH = 10,
       MIN_HASH_VALUE = 1,
-      MAX_HASH_VALUE = 37
+      MAX_HASH_VALUE = 67
     };
 
   static const char * const wordlist[] =
     {
       "",
       "p",
-      "dl",
-      "div",
+      "ul",
+      "pre",
+      "form",
+      "style",
+      "footer",
+      "section",
+      "", "", "",
+      "figure",
+      "hr",
+      "fieldset",
       "math",
+      "figcaption",
+      "header",
+      "dl",
+      "del",
+      "",
+      "blockquote",
+      "script",
+      "article",
+      "div",
+      "",
+      "video",
+      "hgroup",
+      "ol",
+      "noscript",
+      "", "",
+      "canvas",
+      "dd",
+      "nav",
+      "abbr",
+      "audio",
+      "iframe",
+      "address",
+      "ins",
+      "",
       "table",
       "",
-      "ul",
-      "del",
-      "form",
-      "blockquote",
-      "figure",
-      "ol",
-      "fieldset",
-      "",
-      "h1",
-      "",
       "h6",
-      "pre",
       "", "",
-      "script",
+      "aside",
+      "output",
       "h5",
-      "noscript",
+      "", "",
+      "tfoot",
       "",
-      "style",
-      "iframe",
       "h4",
-      "ins",
-      "", "", "",
+      "", "", "", "",
       "h3",
       "", "", "", "",
-      "h2"
+      "h2",
+      "", "", "", "",
+      "h1"
     };
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
